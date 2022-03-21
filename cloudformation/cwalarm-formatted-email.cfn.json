@@ -1,0 +1,233 @@
+{
+    "AWSTemplateFormatVersion": "2010-09-09",
+    "Description": "AWS CloudFormation Template for formatted CloudWatch alarm email notification",
+    "Transform": "AWS::Serverless-2016-10-31",
+    "Parameters": {
+        "pS3DeploymentBucket": {
+            "Type": "String",
+            "Description": "S3 bucket that contains Lambda zip package"
+        },
+        "pS3DeploymentKey": {
+            "Type": "String",
+            "Description": "S3 key of the Lambda zip package"
+        },
+        "pEmailSource": {
+            "Type": "String",
+            "Description": "Sender email address. Should be a verified identity in SES"
+        },
+        "pEmailToAddress": {
+            "Type": "String",
+            "Description": "Receiver (To:) email address"
+        },
+        "pEmailCcAddress": {
+            "Type": "String",
+            "Description": "Receiver (Cc:) email address"
+        },
+        "pEmailReplyToAddress": {
+            "Type": "String",
+            "Description": "Reply To email address"
+        }
+    },
+    "Metadata": {
+        "AWS::CloudFormation::Interface": {
+            "ParameterGroups": [
+                {
+                    "Label": {
+                        "default": "AWS Lambda Configuration"
+                    },
+                    "Parameters": [
+                        "pS3DeploymentBucket",
+                        "pS3DeploymentKey"
+                    ]
+                },
+                {
+                    "Label": {
+                        "default": "Amazon SES Configuration"
+                    },
+                    "Parameters": [
+                        "pEmailSource",
+                        "pEmailToAddress",
+                        "pEmailCcAddress",
+                        "pEmailReplyToAddress"
+                    ]
+                }
+            ],
+            "ParameterLabels": {}
+        }
+    },
+    "Resources": {
+        "rFormattedEmailLambdaFunction": {
+            "Type": "AWS::Serverless::Function",
+            "Properties": {
+                "Handler": "formatted_cwalarm_email.lambda_handler",
+                "Runtime": "python3.8",
+                "FunctionName": { "Ref": "pFunctionName"},
+                "Description": "CloudWatch alarms email formatter",
+                "Environment": {
+                    "Variables": {
+                        "EMAIL_SOURCE": {
+                            "Ref": "pEmailSource"
+                        },
+                        "EMAIL_TO_ADDRESSES": {
+                            "Ref": "pEmailToAddress"
+                        },
+                        "EMAIL_CC_ADDRESSES": {
+                            "Ref": "pEmailCcAddress"
+                        },
+                        "EMAIL_REPLY_TO_ADRESSES": {
+                            "Ref": "pEmailReplyToAddress"
+                        },
+                        "SES_TEMPLATE_CRITICAL": "TemplateCritical"
+                    }
+                },
+                "CodeUri": {
+                    "Bucket": {
+                        "Ref": "pS3DeploymentBucket"
+                    },
+                    "Key": {
+                        "Ref": "pS3DeploymentKey"
+                        }
+                },
+                "Timeout": 60,
+                "Role": {
+                    "Fn::GetAtt": [
+                        "rFunctionRole",
+                        "Arn"
+                    ]
+                }
+            }
+        },
+        "rFunctionRole": {
+            "Type": "AWS::IAM::Role",
+            "Properties": {
+                "RoleName": {
+                    "Fn::Sub": "${pFunctionName}-Role"
+                },
+                "Path": "/",
+                "AssumeRolePolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": "lambda.amazonaws.com"
+                            },
+                            "Action": [
+                                "sts:AssumeRole"
+                            ]
+                        }
+                    ]
+                },
+                "Policies": [
+                    {
+                        "PolicyName": "Lambda_Permissions_SES",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "ses:SendEmail",
+                                        "ses:SendTemplatedEmail",
+                                        "ses:SendRawEmail"
+                                    ],
+                                    "Resource": "*"
+                                }
+                            ]
+                        }
+                    },
+                    {
+                        "PolicyName": "Lambda_Permissions_CWLogs",
+                        "PolicyDocument": {
+                            "Version": "2012-10-17",
+                            "Statement": [
+                                {
+                                    "Effect": "Allow",
+                                    "Action": [
+                                        "logs:CreateLogGroup",
+                                        "logs:CreateLogStream",
+                                        "logs:PutLogEvents",
+                                        "logs:DescribeLogGroups"
+                                    ],
+                                    "Resource": {
+                                        "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
+                                    }                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "rLambdaFunctionPermission": {
+            "Type": "AWS::Lambda::Permission",
+            "Properties": {
+                "FunctionName": {
+                    "Fn::GetAtt": [
+                        "rFormattedEmailLambdaFunction",
+                        "Arn"
+                    ]
+                },
+                "Action": "lambda:InvokeFunction",
+                "Principal": "sns.amazonaws.com",
+                "SourceArn": {
+                    "Ref": "rCwAlarmSns"
+                }
+            }
+        },
+        "rCwAlarmSns": {
+            "Type": "AWS::SNS::Topic",
+            "Properties": {
+                "Subscription": [
+                    {
+                        "Protocol": "lambda",
+                        "Endpoint": {
+                            "Fn::GetAtt": [
+                                "rFormattedEmailLambdaFunction",
+                                "Arn"
+                            ]
+                        }
+                    }
+                ]
+            }
+        },
+        "rCwAlarmSnsPolicy": {
+            "Type": "AWS::SNS::TopicPolicy",
+            "Properties": {
+                "PolicyDocument": {
+                    "Version": "2012-10-17",
+                    "Statement": [
+                        {
+                            "Effect": "Allow",
+                            "Principal": {
+                                "Service": [
+                                    "cloudwatch.amazonaws.com"
+                                ] 
+                            },
+                            "Action": "SNS:Publish",
+                            "Resource": [
+                                {
+                                    "Ref": "rCwAlarmSns"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                "Topics": [
+                    {
+                        "Ref": "rCwAlarmSns"
+                    }
+                ]
+            }
+        },
+        "rTemplateCritical": {
+            "Type": "AWS::SES::Template",
+            "Properties": {
+                "Template": {
+                    "TemplateName": "TemplateCritical",
+                    "SubjectPart": "CRITICAL Alarm on {{alarm}}",
+                    "HtmlPart": "<h2>**Monitoring Alert**</h2><p><strong>State: </strong><span style=\"color: #ff0000;\">Critical</span></p><p><strong>Alarm: </strong> {{alarm}}</p><p><strong>Account:</strong> {{account}} {{region}}</p><p><strong>Instance-id:</strong> {{instanceId}}</p><p><strong>Date/Time:</strong> {{datetime}}</p><p><strong>Reason:</strong> Current value {{value}} is {{comparisonoperator}} {{threshold}}</p>"
+                }
+            }
+        }
+    }
+}
