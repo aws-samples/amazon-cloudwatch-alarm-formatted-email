@@ -19,9 +19,10 @@ The diagram shows the following workflow:
 
 # Requirements
 
-1. The AWS CLI is required to deploy the Lambda function using the deployment instructions.
-2. The AWS CLI should be configured with valid credentials to create the CloudFormation stack, lambda function, and related resources.
-3. A [verified identity in Amazon SES](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html).
+1. AWS account & IAM user
+2. Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+   
+3. Verify an [Amazon SES identity](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html) which will be used as the Sender email.
 
 &nbsp;
 # Deployment
@@ -30,7 +31,7 @@ The diagram shows the following workflow:
     git clone https://github.com/aws-samples/amazon-cloudwatch-alarm-formatted-email
     ```
 
-2. [Configure the AWS](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-configure.html) CLI with credentials for your AWS account.
+2. Configure the [AWS credential keys](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html) to authenticate and authorize the AWS CLI commands on your account.
 
 3. Verify an email identity in Amazon SES. This is the email address that you will use as sender:
     ```
