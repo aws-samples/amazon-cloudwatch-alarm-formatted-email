@@ -19,10 +19,10 @@ The diagram shows the following workflow:
 
 # Requirements
 
-1. AWS account & IAM user
-2. Install the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html).
+1. AWS account & IAM user.
+2. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed.
    
-3. Verify an [Amazon SES identity](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html) which will be used as the Sender email.
+3. A verified [Amazon SES identity](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html) which will be used as the Sender email.
 
 &nbsp;
 # Deployment
@@ -37,13 +37,22 @@ The diagram shows the following workflow:
     ```
     aws ses verify-email-identity --email-address <Your email address>
     ```
+    After issuing this command, you should recive an email for the verification request. You will need to click on the URL link to confirm that you are authorized to use this email address.
 
 4. [Create an S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html) that will be used to store and access the CloudWatchAlarmFormattedEmail lambda function deployment package if you don't have one.
 
-5. Create a zip file containing the **CloudWatchAlarmFormattedEmail** AWS Lambda function code located in the src directory. This is the deployment package that you will use to deploy the AWS Lambda function:
+5. Create a zip file containing the **CloudWatchAlarmFormattedEmail** AWS Lambda function code located in the src directory. This is the deployment package of the AWS Lambda function.
+   
+   For MAC: 
     ```
     zip -j amazon-cloudwatch-alarm-fromatted-email.zip src/*
     ```
+
+    For Windows (Powershell):
+    ```
+    Compress-Archive ./src/* amazon-cloudwatch-alarm-fromatted-email.zip
+    ```
+
 
 6. Copy the **amazon-cloudwatch-alarm-fromatted-email.zip** file to your S3 bucket:
     ```
@@ -56,14 +65,14 @@ The diagram shows the following workflow:
      -  Amazon SNS topic along with its topic policy
     ```
     aws cloudformation create-stack --stack-name amazon-cloudwatch-alarm-formatted-email \
-    --template-body file://cwalarm-formatted-email.cfn.json \
-    --capabilities CAPABILITY_IAM \
+    --template-body file://cloudformation/cwalarm-formatted-email.cfn.json \
+    --capabilities CAPABILITY_IAM CAPABILITY_AUTO_EXPAND \
     --parameters ParameterKey=pS3DeploymentBucket,ParameterValue=<S3 bucket that contains Lambda zip package> \
-	--parameters ParameterKey=pS3DeploymentKey,ParameterValue=<S3 key of the Lambda deployment package (.zip)> \
-    --parameters ParameterKey=pEmailSource,ParameterValue=<Sender email address. Should be a verified identity in SES> \
-    --parameters ParameterKey=pEmailToAddress,ParameterValue=<Receiver (To:) email address> \
-    --parameters ParameterKey=pEmailCcAddress,ParameterValue=<Receiver (Cc:) email address> \
-    --parameters ParameterKey=pEmailReplyToAddress,ParameterValue=<Reply To email address> \	
+	ParameterKey=pS3DeploymentKey,ParameterValue=<S3 key of the Lambda deployment package (.zip)> \
+    ParameterKey=pEmailSource,ParameterValue=<Sender email address. Should be a verified identity in SES> \
+    ParameterKey=pEmailToAddress,ParameterValue=<Receiver (To:) email address> \
+    ParameterKey=pEmailCcAddress,ParameterValue=<Receiver (Cc:) email address> \
+    ParameterKey=pEmailReplyToAddress,ParameterValue=<Reply To email address> \
     --region <enter your aws region id, e.g. "us-east-1">
     ```
 # Usage

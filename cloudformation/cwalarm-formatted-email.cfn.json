@@ -59,9 +59,8 @@
         "rFormattedEmailLambdaFunction": {
             "Type": "AWS::Serverless::Function",
             "Properties": {
-                "Handler": "formatted_cwalarm_email.lambda_handler",
+                "Handler": "cwalarm-formatted-email-lambda.lambda_handler",
                 "Runtime": "python3.8",
-                "FunctionName": { "Ref": "pFunctionName"},
                 "Description": "CloudWatch alarms email formatter",
                 "Environment": {
                     "Variables": {
@@ -100,9 +99,6 @@
         "rFunctionRole": {
             "Type": "AWS::IAM::Role",
             "Properties": {
-                "RoleName": {
-                    "Fn::Sub": "${pFunctionName}-Role"
-                },
                 "Path": "/",
                 "AssumeRolePolicyDocument": {
                     "Version": "2012-10-17",
@@ -225,7 +221,7 @@
                 "Template": {
                     "TemplateName": "TemplateCritical",
                     "SubjectPart": "CRITICAL Alarm on {{alarm}}",
-                    "HtmlPart": "<h2>**Monitoring Alert**</h2><p><strong>State: </strong><span style=\"color: #ff0000;\">Critical</span></p><p><strong>Alarm: </strong> {{alarm}}</p><p><strong>Account:</strong> {{account}} {{region}}</p><p><strong>Instance-id:</strong> {{instanceId}}</p><p><strong>Date/Time:</strong> {{datetime}}</p><p><strong>Reason:</strong> Current value {{value}} is {{comparisonoperator}} {{threshold}}</p>"
+                    "HtmlPart": "<h2><span style=\"color: #d13212;\">&#9888</span>Your Amazon CloudWatch alarm was triggered</h2><table style=\"height: 245px; width: 70%; border-collapse: collapse;\" border=\"1\" cellspacing=\"70\" cellpadding=\"5\"><tbody><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; background-color: #f2f3f3; height: 45px;\"><span style=\"color: #16191f;\"><strong>Impact</strong></span></td><td style=\"width: 60.5228%; background-color: #ffffff; height: 45px;\"><strong><span style=\"color: #d13212;\">Critical</span></strong></td></tr><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; height: 45px; background-color: #f2f3f3;\"><span style=\"color: #16191f;\"><strong>Alarm Name</strong></span></td><td style=\"width: 60.5228%; height: 45px;\">{{alarm}}</td></tr><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; height: 45px; background-color: #f2f3f3;\"><span style=\"color: #16191f;\"><strong>Account</strong></span></td><td style=\"width: 60.5228%; height: 45px;\"><p>{{account}} {{region}})</p></td></tr><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; height: 45px; background-color: #f2f3f3;\"><span style=\"color: #16191f;\"><strong>Instance-id</strong></span></td><td style=\"width: 60.5228%; height: 45px;\">{{instanceId}}</td></tr><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; background-color: #f2f3f3; height: 45px;\"><span style=\"color: #16191f;\"><strong>Date-Time</strong></span></td><td style=\"width: 60.5228%; height: 45px;\">{{datetime}}</td></tr><tr style=\"height: 45px;\"><td style=\"width: 22.6262%; height: 45px; background-color: #f2f3f3;\"><span style=\"color: #16191f;\"><strong>Reason</strong></span></td><td style=\"width: 60.5228%; height: 45px;\">Current value <strong> {{value}} </strong> is {{comparisonoperator}} <strong> {{threshold}} </strong> </td></tr></tbody></table>"
                 }
             }
         }
