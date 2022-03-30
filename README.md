@@ -19,10 +19,10 @@ The diagram shows the following workflow:
 
 # Requirements
 
-1. AWS account & IAM user.
-2. [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed.
+1. AWS account & IAM User or Role 
+2. [AWS CLI v2](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html) installed.
    
-3. A verified [Amazon SES identity](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html) which will be used as the Sender email.
+3. A verified [Amazon SES identity](https://docs.aws.amazon.com/ses/latest/dg/verify-addresses-and-domains.html) which will be used as the sender email.
 
 &nbsp;
 # Deployment
@@ -39,9 +39,9 @@ The diagram shows the following workflow:
     ```
     After issuing this command, you should recive an email for the verification request. You will need to click on the URL link to confirm that you are authorized to use this email address.
 
-4. [Create an S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html) that will be used to store and access the CloudWatchAlarmFormattedEmail lambda function deployment package if you don't have one.
+4. [Create an S3 bucket](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html) that will be used to store and access the CWAlarmFormattedEmail Lambda function deployment package if you don't already have one.
 
-5. Create a zip file containing the **CloudWatchAlarmFormattedEmail** AWS Lambda function code located in the src directory. This is the deployment package of the AWS Lambda function.
+5. Create a zip file containing the CWAlarmFormattedEmail Lambda function code located in the [src](./src/) directory. This is the deployment package of the AWS Lambda function.
    
    For MAC: 
     ```
@@ -63,6 +63,9 @@ The diagram shows the following workflow:
      -  AWS Lambda function along with its IAM execution role
      -  Amazon SES HTML template email
      -  Amazon SNS topic along with its topic policy
+     
+     &nbsp;
+
     ```
     aws cloudformation create-stack --stack-name amazon-cloudwatch-alarm-formatted-email \
     --template-body file://cloudformation/cwalarm-formatted-email.cfn.json \
@@ -88,7 +91,11 @@ Once the alarm is triggered, you should receive an HTML formatted email notifica
 &nbsp;
 
 # Customization
+
 To change how the email looks, you need to update the HTML code in the ```HtmlPart``` property found in the Cloudformation stack [cwalarm-formatted-email.cfn.json](./cloudformation/cwalarm-formatted-email.cfn.json)
+
+The CWAlarmFormattedEmail Lambda function extracts some common values from the alarm event message (account-id, region etc.) and an EC2 specific value (instance-id).
+To use the solution with non-EC2 metrics, make sure to update the Lambda function code.
 
 &nbsp;
 
