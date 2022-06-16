@@ -93,7 +93,8 @@
                         "rFunctionRole",
                         "Arn"
                     ]
-                }
+                },
+                "ReservedConcurrentExecutions": 0
             }
         },
         "rFunctionRole": {
@@ -127,7 +128,10 @@
                                         "ses:SendTemplatedEmail",
                                         "ses:SendRawEmail"
                                     ],
-                                    "Resource": "*"
+                                    "Resource":{
+                                        "Fn::Sub": "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+
+                                    }                                     
                                 }
                             ]
                         }
@@ -183,7 +187,8 @@
                             ]
                         }
                     }
-                ]
+                ],
+                "KmsMasterKeyId": "alias/aws/sns"
             }
         },
         "rCwAlarmSnsPolicy": {
