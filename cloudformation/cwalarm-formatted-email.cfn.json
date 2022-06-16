@@ -93,8 +93,7 @@
                         "rFunctionRole",
                         "Arn"
                     ]
-                },
-                "ReservedConcurrentExecutions": 0
+                }
             }
         },
         "rFunctionRole": {
