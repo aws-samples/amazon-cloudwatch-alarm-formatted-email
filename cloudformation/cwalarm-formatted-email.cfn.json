@@ -128,7 +128,7 @@
                                         "ses:SendRawEmail"
                                     ],
                                     "Resource":{
-                                        "Fn::Sub": "arn:aws:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
+                                        "Fn::Sub": "arn:${AWS::Partition}:ses:${AWS::Region}:${AWS::AccountId}:identity/*"
 
                                     }                                     
                                 }
@@ -149,7 +149,7 @@
                                         "logs:DescribeLogGroups"
                                     ],
                                     "Resource": {
-                                        "Fn::Sub": "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
+                                        "Fn::Sub": "arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:*"
                                     }                                }
                             ]
                         }

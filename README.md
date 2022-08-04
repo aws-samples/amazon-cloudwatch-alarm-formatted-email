@@ -83,6 +83,9 @@ After the deployment, you should be able to test out the soltuion by [creating a
 
 Once the alarm is triggered, you should receive an HTML formatted email notification to the address specified in the ```pEmailToAddress``` CloudFormation paramter.
 
+**Note**:  Although most of the time each message will be delivered to your application exactly once, the distributed nature of Amazon SNS and transient network conditions could result in occasional, duplicate messages at the subscriber end.
+
+
 &nbsp;
 
 # Sample Output
@@ -100,6 +103,9 @@ To use the solution with non-EC2 metrics, make sure to update the Lambda functio
 &nbsp;
 
 # Security
+
+Amazon SNS provides in-transit encryption by default. It is recommended   to also enable server side encryption using AWS KMS [Customer managed CMK](https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html). 
+
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
 
