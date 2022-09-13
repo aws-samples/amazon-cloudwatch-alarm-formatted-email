@@ -45,18 +45,18 @@ The diagram shows the following workflow:
    
    For MAC: 
     ```
-    zip -j amazon-cloudwatch-alarm-fromatted-email.zip src/*
+    zip -j amazon-cloudwatch-alarm-formatted-email.zip src/*
     ```
 
     For Windows (Powershell):
     ```
-    Compress-Archive ./src/* amazon-cloudwatch-alarm-fromatted-email.zip
+    Compress-Archive ./src/* amazon-cloudwatch-alarm-formatted-email.zip
     ```
 
 
-6. Copy the **amazon-cloudwatch-alarm-fromatted-email.zip** file to your S3 bucket:
+6. Copy the **amazon-cloudwatch-alarm-formatted-email.zip** file to your S3 bucket:
     ```
-    aws s3 cp amazon-cloudwatch-alarm-fromatted-email.zip s3://<bucket name>
+    aws s3 cp amazon-cloudwatch-alarm-formatted-email.zip s3://<bucket name>
     ```
 
 7. Deploy the CloudFormation stack that will create the:
