@@ -79,7 +79,7 @@ The diagram shows the following workflow:
     --region <enter your aws region id, e.g. "us-east-1">
     ```
 # Usage
-After the deployment, you should be able to test out the soltuion by [creating a CloudWatch Alarm](https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html) and associating it to the SNS topic deployed by the CloudFormation stack.
+After the deployment, you should be able to test out the soltuion by creating a [CloudWatch Alarm based on EC2 metric](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-cloudwatch-createalarm.html) and associating it to the SNS topic deployed by the CloudFormation stack.
 
 Once the alarm is triggered, you should receive an HTML formatted email notification to the address specified in the ```pEmailToAddress``` CloudFormation paramter.
 

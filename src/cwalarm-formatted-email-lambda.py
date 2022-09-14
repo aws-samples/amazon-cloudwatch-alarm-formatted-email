@@ -25,8 +25,12 @@ def lambda_handler(event, context):
     metric_current_value = new_state_reason[new_state_reason.find("[")+1:new_state_reason.find("[")+5]
 
     # Get instance-id from metric dimension
-    dimension = next(item for item in dimensions if item['name'] == 'InstanceId')
-    instance_id = dimension['value']
+    try:
+      dimension = next(item for item in dimensions if item['name'] == 'InstanceId')
+      instance_id = dimension['value']
+    except Exception as e:
+        logger.error(f'Could not find EC2 instance-id in alarm event. Make sure Alarm is based on EC2 metric')
+        raise e
 
     # Get SES configuration from lambda env variables
     email_template = os.environ['SES_TEMPLATE_CRITICAL']
